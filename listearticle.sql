@@ -1,0 +1,5 @@
+CONNECT sys/oracle as sysdba
+SET LINESIZE 100
+SET PAGESIZE 50
+SELECT * FROM article ORDER BY ref_art;
+EXIT;

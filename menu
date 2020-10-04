@@ -1,0 +1,130 @@
+#!/bin/bash
+# Shell script to run sql files from command line.
+# Pre-Req: sqlplus client shall be installed already.
+###########################################################
+# Variables Section (DB Details)
+###########################################################
+driverClassName=oracle.jdbc.driver.OracleDriver
+url="(description=(address_list=(address=(protocol=TCP)(host=oradb.test.env.org)(port=1521)))(connect_data=(service_name=TEST_S)))"
+DB_UserName="sys"
+DB_Password="oracle"
+LogDirectory="/var/tmp/logs"
+DataDirectory="/var/tmp/data"
+DB_HostName="127.0.0.1"
+DB_Port="1521"
+DB_SID="xe"
+#DIR_SqlFiles="C:\git\sql"
+##########################################################
+# All Script Functions Goes Here
+##########################################################
+
+db_menu() {
+    echo "********* Menu Shopping ***************";
+    echo "1-liste des commandes"
+    echo "2-liste des articles"
+    echo "3-Details d'une commande"
+    echo "4-Enregistrer une commande"
+    echo "5-Modifier une commande"
+    echo "6-Annuler une commandes"
+    echo "0-Sortir"
+    echo "Saisissez votre choix :"
+    read choix
+    if [ $choix -eq 1 ]; 
+    then
+        echo "Liste des commandes :"
+    elif [ $choix -eq 2 ];
+    then
+        echo "non"
+    elif [ $choix -eq 3 ];
+    then
+        echo "non"
+    elif [ $choix -eq 4 ];
+    then
+        echo "non"
+    elif [ $choix -eq 5 ];
+    then
+        echo "non"
+    elif [ $choix -eq 6 ];
+    then
+        echo "non"
+    elif [ $choix -eq 0 ];
+    then
+        echo "Aurevoir...."
+    else
+        echo "Menu Inconnu. Aurevoir!!!!!"
+    fi
+}
+
+
+
+db_statuscheck() {
+  echo "`date` :Checking DB connectivity...";
+  echo "`date` :Trying to connect "${DB_UserName}"/"${DB_Password}"@"${DB_SID}" ..."
+  echo "exit" | sqlplus ${DB_UserName}/${DB_Password}" as sysdba"
+  if [ $? -eq 0 ]
+  then
+     DB_STATUS="UP"
+     export DB_STATUS
+     echo "`date` :Status: ${DB_STATUS}. Able to Connect..." 
+     #db_menu
+     set serveroutput on;
+     set linesize 200;
+     "select distinct commande.NUM_COM,LIB_COM,DATE_COM,MT_TTC_COM,ETAT_COMMANDE from commande order by commande.NUM_COM;"
+     exit
+  else
+     DB_STATUS="DOWN"
+     export DB_STATUS
+     echo "`date` :Status: DOWN . Not able to Connect."
+     echo "`date` :Not able to connect to database with Username:  "${DB_UserName}" Password: "${DB_Password}" DB HostName: "${DB_HostName}" DB   Port: "${DB_Port}" SID: "${DB_SID}"."
+     echo "`date` :Exiting Script Run..."
+     exit
+     fi
+ }
+
+Main() {
+    echo "`date` :Starting Sql auto run script."
+    echo "********* Menu Shopping ***************";
+    echo "1-liste des commandes"
+    echo "2-liste des articles"
+    echo "3-Details d'une commande"
+    echo "4-Enregistrer une commande"
+    echo "5-Modifier une commande"
+    echo "6-Annuler une commandes"
+    echo "0-Sortir"
+    echo "Saisissez votre choix :"
+    read choix
+    if [ $choix -eq 1 ]; 
+    then
+        echo "Liste des commandes :"
+        sqlplus /nolog @listecommande.sql
+    elif [ $choix -eq 2 ];
+    then
+        echo "Liste des articles :"
+        sqlplus /nolog @listearticle.sql
+    elif [ $choix -eq 3 ];
+    then
+        echo "Details commandes :"
+        sqlplus /nolog @detailcommande.sql
+    elif [ $choix -eq 4 ];
+    then
+        echo "Ajout commande :"
+        sqlplus /nolog @ajoutcommande.sql
+    elif [ $choix -eq 5 ];
+    then
+        echo "Modifier commande :"
+        sqlplus /nolog @modifiercommande.sql
+    elif [ $choix -eq 6 ];
+    then
+        echo "Annuler une commande"
+        sqlplus /nolog @annulercommande.sql
+    elif [ $choix -eq 0 ];
+    then
+        echo "Aurevoir...."
+    else
+        echo "Menu Inconnu. Aurevoir!!!!!"
+    fi
+   echo "`date` :Sql auto run script execution completed."
+}
+
+Main | tee autosql.log
+ 
